@@ -1,4 +1,6 @@
 using ReadyTechDevTechnicalTest.Common;
+using ReadyTechDevTechnicalTest.Domain;
+using ReadyTechDevTechnicalTest.Integrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<IDateProvider, DateProvider>();
 builder.Services.AddSingleton<ICoffeeProvider, CoffeeProvider>();
+builder.Services.AddScoped<IWeatherService, WeatherService>();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

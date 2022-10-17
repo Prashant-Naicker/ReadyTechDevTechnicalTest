@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ReadyTechDevTechnicalTest.Common;
+using ReadyTechDevTechnicalTest.Domain;
+using ReadyTechDevTechnicalTest.Integrations;
 using ReadyTechDevTechnicalTest.Models;
 
 namespace ReadyTechDevTechnicalTest.Controllers
@@ -10,17 +12,20 @@ namespace ReadyTechDevTechnicalTest.Controllers
     {
         private readonly IDateProvider _dateProvider;
         private readonly ICoffeeProvider _coffeeProvider;
+        private readonly IWeatherService _weatherService;
 
         public BrewCoffeeController(
             IDateProvider dateProvider,
-            ICoffeeProvider coffeeCounter)
+            ICoffeeProvider coffeeCounter,
+            IWeatherService weatherService)
         {
             _dateProvider = dateProvider;
             _coffeeProvider = coffeeCounter;
+            _weatherService = weatherService;
         }
 
         [HttpGet]
-        public IActionResult BrewCoffee()
+        public async Task<IActionResult> BrewCoffee()
         {
             if (_coffeeProvider.CoffeeAvailable())
             {
@@ -34,9 +39,12 @@ namespace ReadyTechDevTechnicalTest.Controllers
                 return StatusCode(418);
             }
 
+            var currentWeather = await _weatherService.GetCurrentWeatherAsync();
+            var tempInC = currentWeather.Current.Temp - (decimal)273.15;
+
             return Ok(new BrewCoffeeResponseModel
             {
-                Message = "Your piping hot coffee is ready",
+                Message = tempInC > 30 ? "Your refreshing iced coffee is ready" : "Your piping hot coffee is ready",
                 Prepared = now
             });
         }
